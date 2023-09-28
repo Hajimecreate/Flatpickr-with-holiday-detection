@@ -1,2 +1,12 @@
-# Flatpickr-with-holiday-detection
-祝日判定ができるFlatpickr
+# Flatpickr with holiday detection
+- 祝日判定ができるFlatpickrになります。
+- jQueryを使わず、Javascriptのみで動いているのでこのままコピペで動きます。
+- 祝日は https://holidays-jp.github.io/api/v1/date.json から自動取得させて頂いております。
+- このソースコードは Promiseの勉強にもなると思います。
+- 実際に動くサンプルは https://codepen.io/tsukamoto/pen/wvRXaBz からご覧になれます。
+
+## 処理の流れ
+1. format2YMD 関数は、与えられた日付を特定の形式(Y-m-d)に整形します。
+1. isHoliday 関数は、与えられた日付が日本の祝日かどうかを調べ、結果を返します。これを確認するために、外部のAPIから祝日データを取得し、引数の日付がその中にあるかどうかをチェックします。
+1. 結果に応じて、アラートメッセージが表示されます。祝日の場合は "祝日です"、そうでない場合は "祝日ではありません" のメッセージが表示されます。
+1. データの取得に問題がある場合、エラーメッセージがコンソールに表示されます。

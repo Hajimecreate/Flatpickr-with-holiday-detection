@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flatpickr with holiday detection</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.6/themes/material_blue.min.css"
+    />
+  </head>
+  <body
+    class="bg-blue-100 h-screen flex items-center justify-center text-center p-4"
+  >
+    <div class="w-96 rounded-xl shadow-md p-5 border border-gray-50 bg-white">
+      <h1 class="text-gray-700 text-lg">祝日判定ができるflatpickr</h1>
+      <div class="p-4">
+        <input
+          name="receipt_date"
+          id="flatpickr"
+          class="border border-gray-600 p-4 w-full"
+          type="text"
+          value=""
+          placeholder="日付を選択して下さい"
+          required
+        />
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-1 mt-4">
+        <div class="bg-blue-500 h-1 rounded-full"></div>
+      </div>
+      <p class="text-gray-500 text-xs mt-4">2023 Hajimecreate, inc.</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script>
+      ///////////////////////////////////////////////////////////////////////////
+      // flatpickrの定義
+      flatpickr("#flatpickr", {});
+      ///////////////////////////////////////////////////////////////////////////
+
+      ///////////////////////////////////////////////////////////////////////////
+      // 祝日判定用の関数の定義
+      const format2YMD = (day) => {
+        const Y = day.getFullYear();
+        const M = day.getMonth() + 1;
+        const D = day.getDate();
+        return [Y, ("0" + M).slice(-2), ("0" + D).slice(-2)].join("-");
+      };
+
+      const isHoliday = (date) => {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "GET",
+            "https://holidays-jp.github.io/api/v1/date.json",
+            true
+          );
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                const holidays = JSON.parse(xhr.responseText);
+                if (format2YMD(date) in holidays) {
+                  resolve(true);
+                } else {
+                  resolve(false);
+                }
+              } else {
+                reject("データの取得に失敗しました");
+              }
+            }
+          };
+          xhr.send();
+        });
+      };
+      ///////////////////////////////////////////////////////////////////////////
+
+      ///////////////////////////////////////////////////////////////////////////
+      const calendar = document.getElementById("flatpickr");
+
+      calendar.addEventListener("change", function () {
+        const targetDay = new Date(this.value);
+
+        isHoliday(targetDay)
+          .then((result) => {
+            if (result) {
+              alert("祝日です");
+            } else {
+              alert("祝日ではありません");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      });
+      ///////////////////////////////////////////////////////////////////////////
+    </script>
+  </body>
+</html>
